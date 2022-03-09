@@ -6,7 +6,7 @@ const headers = {
   'Content-Type': 'application/json',
 };
 module.exports = {
-  todoCreateErrHandle: function (res) {
+  todoEditErrHandle: function (res) {
     res.writeHead(400, headers);
     res.write(
       JSON.stringify({

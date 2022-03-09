@@ -50,18 +50,23 @@ const requestListener = function (req, res) {
         const data = JSON.parse(body);
         if (!data.title) {
           // title required
-          errorHelper.todoCreateErrHandle(res);
+          errorHelper.todoEditErrHandle(res);
         } else {
           res.writeHead(201, headers);
-          todos.push({
+          const todo = {
             id: uuidv4(),
             title: data.title,
-          });
-          res.write(JSON.stringify(todos));
+          };
+          todos.push(todo);
+          res.write(
+            JSON.stringify({
+              data: todo,
+            }),
+          );
           res.end();
         }
       } catch (err) {
-        errorHelper.todoCreateErrHandle(res);
+        errorHelper.todoEditErrHandle(res);
       }
     });
   } else if (req.url == '/todos' && req.method == 'DELETE') {
@@ -94,6 +99,30 @@ const requestListener = function (req, res) {
     } else {
       errorHelper.todoDeleteErrHandle(res);
     }
+  } else if (req.url.startsWith('/todo/') && req.method == 'PATCH') {
+    // update one todo
+    req.on('end', () => {
+      try {
+        const data = JSON.parse(body);
+        const id = req.url.split('/').pop();
+        const index = todos.findIndex((item) => item.id === id);
+        if (data.title && index > -1) {
+          // title required
+          res.writeHead(200, headers);
+          todos[index].title = data.title;
+          res.write(
+            JSON.stringify({
+              data: todos[index],
+            }),
+          );
+          res.end();
+        } else {
+          errorHelper.todoEditErrHandle(res);
+        }
+      } catch (err) {
+        errorHelper.todoEditErrHandle(res);
+      }
+    });
   } else if (req.method === 'OPTIONS') {
     //OPTIONS
     res.writeHead(200, headers);
